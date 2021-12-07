@@ -1,0 +1,144 @@
+{% extends 'users/index.html' %}
+
+{% block content %}
+<div class="text-left"><h3>You can create your todo by clicking <span><a href="{% url 'todo:create_todo' %}">here</a></span>.</h3></div>
+
+{% if page_obj %}
+  <div id="todo_block">
+    <div class="text-left">
+      <h3>Your To-Dos:</h3>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Due Date</th>
+          <th scope="col">Status</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for data in page_obj %}
+        <tr id="todo_id_{{data.id}}">
+          <th scope="row">{{forloop.counter}}</th>
+          <td>{{data.name}}</td>
+          <td>{{data.due_date}}</td>
+          <td>{{data.get_status_display}}</td>
+          <td><a href="{% url 'todo:update' data.id %}"><i class="fa fa-edit" style="font-size:24px"></i></a>&nbsp;
+              {% if data.owner == request.user %}<a href="#"><i class="fa fa-trash-o my_delete" data-url="{% url 'todo:delete' data.id %}" style="font-size:24px"></i></a>
+              <a href="#"><i class="fa fa-share my_share" data-id="{{data.id}}" style="margin-left:5px;font-size:24px"></i></a>{% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="text-center" style="margin-top: 5%" id="no_todo">
+    <p> You don't have any To-Dos in your list.
+  </div>
+{% endif %}
+{% if users %}
+  <div class="container-fluid">
+    <form method="post" id="formID" action="{% url 'todo:share_todo' %}" >{% csrf_token %}
+        <div class="text-left">
+          <h3>Users:</h3>
+          <div class="text-right">
+            <input type="hidden" name="todo" id="todo_share_id" value="">
+            <input class="btn btn-primary" id="share_sub" type="submit" value="Share" disabled>
+          </div>
+        </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Username</th>
+              <th scope="col">Share</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for data in users %}
+            <tr>
+              <th scope="row">{{forloop.counter}}</th>
+              <td>{{data.username}}</td>
+              <td><input type="checkbox" class="my_check_box" name="user_ids" value="{{data.id}}" disabled></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+    </form>
+  </div>
+{% endif %}
+
+{% if todo_logs %}
+  <div>
+    <div class="text-left">
+      <h3>Your To-Do's Logs:</h3>
+    </div>
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Name</th>
+          <th scope="col">Due Date</th>
+          <th scope="col">Status</th>
+          <th scope="col">updated By</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for data in todo_logs %}
+        <tr>
+          <th scope="row">{{forloop.counter}}</th>
+          <td>{{data.todo.name}}</td>
+          <td>{{data.todo.due_date}}</td>
+          <td>{{data.todo.get_status_display}}</td>
+          <td>{{data.updated_by}} </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+  $(document).on('click','.my_delete', function (e) {
+    e.preventDefault();
+    var url = $(this).attr('data-url');
+
+    $.ajax({
+    url: url,
+    type: 'GET',
+      success: function(response) {
+        if(response.status == 'success'){
+          $("#todo_id_"+response.id).remove();
+          if(response.count == 0){
+            location.reload();
+          }
+        }
+        else{
+          alert(response.msg);
+        }
+      }
+    });
+  })
+
+  $(document).on('click', '.my_share', function (e) {
+    $('#todo_share_id').val($(this).attr('data-id'));
+    $('.my_check_box').attr('disabled',false)
+
+  });
+
+  $(document).on('change', '.my_check_box', function (e) {
+    if ($("#formID input:checkbox:checked").length > 0){
+      $('#share_sub').attr('disabled',false);
+    }
+    else{
+      $('#share_sub').attr('disabled',true);
+    }
+
+  })
+
+</script>
+{% endblock extra_js %}
