@@ -8,14 +8,15 @@ from todo.models import ToDo
 
 
 class ToDoFormView(forms.ModelForm):
-    due_date= forms.DateField(widget=SelectDateWidget(empty_label="Nothing"))
+    due_date = forms.DateField(widget=SelectDateWidget(empty_label="Nothing"))
+
     class Meta:
         model = ToDo
         exclude = ['user', ]
 
     def clean_due_date(self):
-        due_date= self.cleaned_data.get('due_date')
-        print(due_date,"========")
+        due_date = self.cleaned_data.get('due_date')
+
         if due_date < datetime.today().date():
             raise ValidationError('Please choose correct date')
         return due_date

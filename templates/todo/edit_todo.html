@@ -1,24 +1,26 @@
 {% extends 'users/index.html' %}
 
 
-
 {% block content %}
 <form method="post">{% csrf_token %}
     <div class="form-group">
         <label for="name">To-Do Name:</label>
-        <input type="text" id="name" value="{{data.name}}" name="name" class="form-control" aria-describedby="emailHelp" placeholder="Enter To-do Name">
+        <input type="text" id="name" value="{{data.name}}" name="name" class="form-control" aria-describedby="emailHelp"
+               placeholder="Enter To-do Name">
     </div>
     <div class="form-group">
         <label for="status">To-Do Status</label>
         <select id="status" name="status">
-            <option value="Active" {% if data.status == 'Active' %}selected {% endif %}>Active</option>
-            <option value="Completed" {% if data.status == 'Completed' %}selected {% endif %}>Completed</option>
+            <option value="Active" {% if data.status==
+            'Active' %}selected {% endif %}>Active</option>
+            <option value="Completed" {% if data.status==
+            'Completed' %}selected {% endif %}>Completed</option>
         </select>
     </div>
     <div class="form-group">
         <label for="due_date">To-Do Ends on:</label>
         <input type="date" id="due_date" name="due_date" value="{{data.due_date|date:'Y-m-d'}}" class="form-control">
     </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}
